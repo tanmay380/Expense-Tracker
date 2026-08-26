@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -32,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.expensetracker.data.Account
@@ -75,6 +77,33 @@ fun HomeScreen(
         Log.d("tanmay", "HomeScreen: ${transactions.size}")
     }
 
+    HomeScreenContent(
+        accounts = accounts,
+        selectedMonth = selectedMonth,
+        searchQuery = searchQuery,
+        filteredTransactions = filteredTransactions,
+        stats = stats,
+        onPreviousMonth = { viewModel.previousMonth() },
+        onNextMonth = { viewModel.nextMonth() },
+        onMenuClick = onMenuClick,
+        onSearchQueryChange = { viewModel.updateSearchQuery(it) },
+        onTransactionClick = onTransactionClick
+    )
+}
+
+@Composable
+fun HomeScreenContent(
+    accounts: List<Account>,
+    selectedMonth: YearMonth,
+    searchQuery: String,
+    filteredTransactions: List<Transaction>,
+    stats: MonthlyStats,
+    onPreviousMonth: () -> Unit,
+    onNextMonth: () -> Unit,
+    onMenuClick: () -> Unit,
+    onSearchQueryChange: (String) -> Unit,
+    onTransactionClick: (Transaction) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -87,8 +116,8 @@ fun HomeScreen(
         // Header with month navigation
         MonthHeader(
             month = selectedMonth,
-            onPreviousMonth = { viewModel.previousMonth() },
-            onNextMonth = { viewModel.nextMonth() },
+            onPreviousMonth = onPreviousMonth,
+            onNextMonth = onNextMonth,
             onMenuClick = onMenuClick
         )
 
@@ -102,7 +131,7 @@ fun HomeScreen(
             item {
                 SearchBar(
                     query = searchQuery,
-                    onQueryChange = { viewModel.updateSearchQuery(it) }
+                    onQueryChange = onSearchQueryChange
                 )
             }
 
@@ -188,13 +217,21 @@ fun MonthHeader(
         ) {
             MenuButton(onClick = onMenuClick)
 
-            Column {
+            Column (horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     "Expense Tracker",
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = AppColors.TextSecondary,
                     modifier = Modifier.padding(start = 8.dp)
+                )
+                Text(
+                    month.toString(),
+                    fontSize = 14.sp,
+                    color = AppColors.TextSecondary,
+                    modifier = Modifier.padding(top = 8.dp),
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Center,
                 )
             }
 
@@ -203,14 +240,6 @@ fun MonthHeader(
                 MonthNavButton(text = "›", onClick = onNextMonth, enabled = !isNextMonthInFuture)
             }
         }
-
-        Text(
-            month.toString(),
-            fontSize = 14.sp,
-            color = AppColors.TextSecondary,
-            modifier = Modifier.padding(top = 8.dp),
-            fontWeight = FontWeight.SemiBold
-        )
     }
 }
 
@@ -399,7 +428,7 @@ fun AccountsSection(accounts: List<Account>) {
 
                     Column() {
                         Text(
-                            account.shortName,
+                            account.name,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = AppColors.TextPrimary
@@ -508,4 +537,45 @@ fun TransactionRow(
             )
         }
     }
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+fun HomeScreenPreview() {
+    HomeScreenContent(
+        accounts = listOf(
+            Account(id = "1", name = "Test 1234", shortName = "Test", bankCode = "TST", accountNumber = "1234"),
+            Account(id = "2", name = "Test 1234", shortName = "Test", bankCode = "TST", accountNumber = "1234")
+        ),
+        selectedMonth = YearMonth.now(),
+        searchQuery = "",
+        filteredTransactions = listOf(
+            Transaction(
+                id = "1",
+                merchant = "Amazon",
+                amount = 1200.0,
+                category = "Shopping",
+                accountId = "1",
+                timestamp = System.currentTimeMillis(),
+                source = "manual",
+                isIncome = false
+            ),
+            Transaction(
+                id = "2",
+                merchant = "Salary",
+                amount = 50000.0,
+                category = "Income",
+                accountId = "1",
+                timestamp = System.currentTimeMillis() - 86400000,
+                source = "sms",
+                isIncome = true
+            )
+        ),
+        stats = MonthlyStats(expense = 1200.0, income = 50000.0),
+        onPreviousMonth = {},
+        onNextMonth = {},
+        onMenuClick = {},
+        onSearchQueryChange = {},
+        onTransactionClick = {}
+    )
 }
