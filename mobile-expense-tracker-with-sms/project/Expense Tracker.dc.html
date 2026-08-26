@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><meta name="design_doc_mode" content="canvas"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Figtree:wght@400;500;600;700&display=swap"><style>
+body{margin:0;background:#efe3cd;font-family:"Figtree",system-ui,sans-serif;color:#201e1d}
+a{color:#8c491a;text-underline-offset:3px}a:hover{color:#b2622d}
+*{box-sizing:border-box}
+.sc{scrollbar-width:none}.sc::-webkit-scrollbar{display:none}
+@keyframes toastIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes drawerIn{from{transform:translateX(-100%)}to{transform:translateX(0)}}
+</style></helmet>
+
+<section style="padding:44px 52px 56px;border-bottom:1px solid rgba(32,30,29,0.1)">
+<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px">
+<a href="#t1" style="font:600 10px ui-monospace,Menlo,monospace;padding:4px 8px;background:#201e1d;color:#f5ead8;border-radius:5px;text-decoration:none">1</a>
+<span style="font:600 13px/1.2 Figtree,sans-serif">Paisa — SMS-driven expense tracker, Android</span>
+</div>
+<p style="max-width:560px;margin:0 0 30px;font-size:13.5px;line-height:1.6;color:rgba(32,30,29,0.6)">Assumptions from your answers: ₹ INR, three accounts read out of SMS (ICICI ••3717, Slice Bank ••1234, Slice Credit Card ••5678), SMS entries added silently and editable later, drawer navigation, warm copy. <a href="#1a">1a</a> is the live prototype — drawer, accounts, transaction detail, manual add, settings all work. <a href="#1b">1b</a> and <a href="#1c">1c</a> are the alternates you asked for on Home layout and transaction detail.</p>
+
+<div style="display:flex;flex-wrap:wrap;gap:44px;align-items:flex-start">
+
+<div id="1a" style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;align-items:baseline;gap:9px;font-size:11.5px;color:rgba(32,30,29,0.55)"><a href="#1a" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(32,30,29,0.09);color:#201e1d;border-radius:5px;text-decoration:none">1a</a>Live prototype — tap anything</div>
+<div style="width:428px;height:900px;border-radius:46px;padding:8px;background:linear-gradient(160deg,#8a8076,#57504a);box-shadow:0 26px 60px rgba(46,43,37,0.3)">
+<div style="width:100%;height:100%;border-radius:38px;overflow:hidden;background:#f5ead8;display:flex;flex-direction:column;position:relative">
+
+<div style="height:38px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:12.5px;font-weight:600;position:relative;z-index:4">
+<span>9:41</span>
+<div style="position:absolute;left:50%;top:8px;transform:translateX(-50%);width:22px;height:22px;border-radius:999px;background:#2e2b25"></div>
+<div style="display:flex;align-items:center;gap:6px">
+<div style="width:13px;height:9px;border-radius:2px;background:#201e1d"></div>
+<div style="width:11px;height:9px;border-radius:2px;background:rgba(32,30,29,0.4)"></div>
+<div style="width:22px;height:11px;border-radius:3px;border:1.5px solid #201e1d;padding:1.5px"><div style="width:72%;height:100%;border-radius:1px;background:#201e1d"></div></div>
+</div>
+</div>
+
+<div style="flex:none;display:flex;align-items:center;gap:10px;padding:4px 16px 8px">
+<div onClick="{{ openDrawer }}" style="width:42px;height:42px;border-radius:999px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;background:transparent" style-hover="background:#ebddc5">
+<div style="width:17px;height:2.5px;border-radius:2px;background:#201e1d"></div>
+<div style="width:17px;height:2.5px;border-radius:2px;background:#201e1d"></div>
+<div style="width:11px;height:2.5px;border-radius:2px;background:#201e1d"></div>
+</div>
+<div style="flex:1;min-width:0;font-size:15px;font-weight:600;color:rgba(32,30,29,0.62)">{{ barTitle }}</div>
+<div onClick="{{ goSettings }}" style="width:38px;height:38px;border-radius:999px;background:#ebddc5;display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:#dcd3c4">
+<div style="width:15px;height:15px;border-radius:999px;border:2.75px solid #645c50"></div>
+</div>
+</div>
+
+<div class="sc" style="flex:1;overflow-y:auto;overflow-x:hidden;position:relative">
+
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+<div style="padding:2px 20px 18px">
+<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px">
+<div>
+<div style="font-size:11.5px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(32,30,29,0.5)">{{ greeting }}</div>
+<h2 style="font-family:Caprasimo,serif;font-weight:400;font-size:31px;line-height:1.08;letter-spacing:-0.015em;margin:3px 0 0">{{ monthLabel }}</h2>
+</div>
+<div style="display:flex;gap:8px;flex:none">
+<div onClick="{{ prevMonth }}" style="width:36px;height:36px;border-radius:999px;background:#ebddc5;display:flex;align-items:center;justify-content:center;font-size:17px;color:#645c50;cursor:pointer" style-hover="background:#dcd3c4">‹</div>
+<div onClick="{{ nextMonth }}" style="width:36px;height:36px;border-radius:999px;background:#ebddc5;display:flex;align-items:center;justify-content:center;font-size:17px;color:#645c50;cursor:pointer" style-hover="background:#dcd3c4">›</div>
+</div>
+</div>
+
+<div style="margin-top:16px;border-radius:28px;background:#fdf8f0;box-shadow:0 3px 10px rgba(46,43,37,0.1);padding:20px;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;gap:16px">
+<div style="flex:1;display:flex;flex-direction:column;gap:5px">
+<div style="display:flex;align-items:center;gap:7px">
+<div style="width:9px;height:9px;border-radius:999px;background:#c67139"></div>
+<span style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:rgba(32,30,29,0.55);white-space:nowrap">Money out</span>
+</div>
+<div style="font-family:Caprasimo,serif;font-size:25px;line-height:1.1;color:#8c491a">{{ expenseText }}</div>
+</div>
+<div style="width:1px;background:rgba(32,30,29,0.12)"></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:5px">
+<div style="display:flex;align-items:center;gap:7px">
+<div style="width:9px;height:9px;border-radius:999px;background:#7a8a5e"></div>
+<span style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:rgba(32,30,29,0.55);white-space:nowrap">Money in</span>
+</div>
+<div style="font-family:Caprasimo,serif;font-size:25px;line-height:1.1;color:#56633f">{{ incomeText }}</div>
+</div>
+</div>
+</div>
+
+<sc-if value="{{ showSearch }}" hint-placeholder-val="{{ true }}">
+<div style="margin-top:14px;display:flex;align-items:center;gap:10px;padding:6px 8px 6px 16px;border-radius:999px;background:#ebddc5">
+<div style="width:14px;height:14px;border-radius:999px;border:2.75px solid #82796a;flex:none"></div>
+<input value="{{ query }}" onChange="{{ onQuery }}" placeholder="Search merchant, category, account" style="flex:1;min-width:0;border:0;background:transparent;outline:none;font-family:Figtree,sans-serif;font-size:14px;color:#201e1d;padding:9px 0" />
+<sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ clearQuery }}" style="width:32px;height:32px;flex:none;border-radius:999px;background:#dcd3c4;display:flex;align-items:center;justify-content:center;font-size:15px;color:#645c50;cursor:pointer">×</div>
+</sc-if>
+</div>
+<div style="display:flex;gap:8px;margin-top:10px;overflow-x:auto" class="sc">
+<sc-for list="{{ filterChips }}" as="c" hint-placeholder-count="4">
+<div onClick="{{ c.pick }}" style="flex:none;padding:8px 14px;border-radius:999px;font-size:12.5px;font-weight:600;cursor:pointer;background:{{ c.bg }};color:{{ c.ink }};border:1px solid {{ c.border }}">{{ c.label }}</div>
+</sc-for>
+</div>
+</sc-if>
+</div>
+
+<div style="padding:0 20px 130px">
+<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:2px">
+<h3 style="font-family:Caprasimo,serif;font-weight:400;font-size:19px;margin:0">Transactions</h3>
+<span style="font-size:12.5px;color:rgba(32,30,29,0.5)">{{ countNote }}</span>
+</div>
+<sc-for list="{{ rows }}" as="row" hint-placeholder-count="7">
+<sc-if value="{{ row.isHeader }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:baseline;justify-content:space-between;padding:16px 4px 4px">
+<span style="font-size:11.5px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(32,30,29,0.45)">{{ row.label }}</span>
+<span style="font-size:12px;font-weight:600;color:rgba(32,30,29,0.45)">{{ row.total }}</span>
+</div>
+</sc-if>
+<sc-if value="{{ row.isTxn }}" hint-placeholder-val="{{ true }}">
+<div onClick="{{ row.open }}" style="display:flex;align-items:center;gap:13px;padding:11px 12px;border-radius:20px;cursor:pointer" style-hover="background:#fdf8f0">
+<div style="width:42px;height:42px;border-radius:999px;flex:none;display:flex;align-items:center;justify-content:center;font-family:Caprasimo,serif;font-size:15px;background:{{ row.tint }};color:{{ row.ink }}">{{ row.initial }}</div>
+<div style="flex:1;min-width:0">
+<div style="font-size:15px;font-weight:600;letter-spacing:-0.005em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ row.merchant }}</div>
+<div style="font-size:12.5px;color:rgba(32,30,29,0.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ row.subtitle }}</div>
+</div>
+<div style="flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+<div style="font-size:15.5px;font-weight:700;color:{{ row.amountColor }}">{{ row.amountText }}</div>
+<div style="font-size:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:{{ row.sourceColor }}">{{ row.sourceLabel }}</div>
+</div>
+</div>
+</sc-if>
+</sc-for>
+<sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+<div style="margin-top:26px;padding:26px 22px;border-radius:26px;background:#ebddc5;text-align:center">
+<div style="font-family:Caprasimo,serif;font-size:18px;margin-bottom:4px">Nothing matches that</div>
+<div style="font-size:13px;color:rgba(32,30,29,0.6)">Try a merchant name, or clear the search.</div>
+</div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isAccounts }}" hint-placeholder-val="{{ false }}">
+<div style="padding:2px 20px 130px">
+<div style="font-size:11.5px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(32,30,29,0.5)">Found in your messages</div>
+<h2 style="font-family:Caprasimo,serif;font-weight:400;font-size:30px;line-height:1.1;margin:3px 0 4px">Accounts</h2>
+<p style="font-size:13.5px;color:rgba(32,30,29,0.58);margin:0 0 18px">{{ accountsNote }}</p>
+<div style="display:flex;flex-direction:column;gap:12px">
+<sc-for list="{{ accountCards }}" as="a" hint-placeholder-count="3">
+<div onClick="{{ a.open }}" style="border-radius:28px;background:#fdf8f0;box-shadow:0 1px 2px rgba(46,43,37,0.12);padding:17px 18px;cursor:pointer;display:flex;flex-direction:column;gap:13px" style-hover="box-shadow:0 3px 10px rgba(46,43,37,0.18)">
+<div style="display:flex;align-items:center;gap:13px">
+<div style="width:46px;height:46px;border-radius:999px;flex:none;display:flex;align-items:center;justify-content:center;font-family:Caprasimo,serif;font-size:15px;background:{{ a.tint }};color:{{ a.ink }}">{{ a.initial }}</div>
+<div style="flex:1;min-width:0">
+<div style="font-size:15.5px;font-weight:600">{{ a.name }}</div>
+<div style="font-size:12.5px;color:rgba(32,30,29,0.55)">{{ a.meta }}</div>
+</div>
+<span style="font-size:19px;color:rgba(32,30,29,0.35)">›</span>
+</div>
+<div style="display:flex;gap:16px;border-top:1px solid rgba(32,30,29,0.1);padding-top:11px">
+<div style="flex:1">
+<div style="font-size:10.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:rgba(32,30,29,0.45)">{{ a.balanceLabel }}</div>
+<div style="font-size:16.5px;font-weight:700;margin-top:2px">{{ a.balanceText }}</div>
+</div>
+<div style="flex:1">
+<div style="font-size:10.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:rgba(32,30,29,0.45)">Out in {{ monthShort }}</div>
+<div style="font-size:16.5px;font-weight:700;margin-top:2px;color:#8c491a">{{ a.spendText }}</div>
+</div>
+</div>
+</div>
+</sc-for>
+</div>
+<div style="margin-top:16px;padding:15px 18px;border-radius:26px;background:rgba(122,138,94,0.15);font-size:13px;line-height:1.55;color:#3d472b">New sender showing up in your inbox? Paisa asks once, then files it here on its own.</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isAccount }}" hint-placeholder-val="{{ false }}">
+<div style="padding:2px 20px 130px">
+<div onClick="{{ back }}" style="display:inline-flex;align-items:center;gap:7px;padding:8px 15px 8px 11px;border-radius:999px;background:#ebddc5;font-size:13px;font-weight:600;color:#645c50;cursor:pointer" style-hover="background:#dcd3c4">‹ Accounts</div>
+<div style="display:flex;align-items:center;gap:14px;margin:18px 0 16px">
+<div style="width:56px;height:56px;border-radius:999px;flex:none;display:flex;align-items:center;justify-content:center;font-family:Caprasimo,serif;font-size:18px;background:{{ acc.tint }};color:{{ acc.ink }}">{{ acc.initial }}</div>
+<div style="flex:1;min-width:0">
+<h2 style="font-family:Caprasimo,serif;font-weight:400;font-size:23px;line-height:1.15;margin:0">{{ acc.name }}</h2>
+<div style="font-size:13px;color:rgba(32,30,29,0.55)">{{ acc.meta }}</div>
+</div>
+</div>
+<div style="border-radius:28px;background:#fdf8f0;box-shadow:0 1px 2px rgba(46,43,37,0.12);padding:18px;display:flex;gap:16px">
+<div style="flex:1">
+<div style="font-size:10.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:rgba(32,30,29,0.45)">{{ acc.balanceLabel }}</div>
+<div style="font-family:Caprasimo,serif;font-size:22px;margin-top:4px">{{ acc.balanceText }}</div>
+</div>
+<div style="width:1px;background:rgba(32,30,29,0.12)"></div>
+<div style="flex:1">
+<div style="font-size:10.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:rgba(32,30,29,0.45)">Out in {{ monthShort }}</div>
+<div style="font-family:Caprasimo,serif;font-size:22px;margin-top:4px;color:#8c491a">{{ acc.spendText }}</div>
+</div>
+</div>
+<h3 style="font-family:Caprasimo,serif;font-weight:400;font-size:18px;margin:22px 0 0">{{ acc.countNote }}</h3>
+<sc-for list="{{ accountRows }}" as="row" hint-placeholder-count="5">
+<sc-if value="{{ row.isHeader }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:baseline;justify-content:space-between;padding:16px 4px 4px">
+<span style="font-size:11.5px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(32,30,29,0.45)">{{ row.label }}</span>
+<span style="font-size:12px;font-weight:600;color:rgba(32,30,29,0.45)">{{ row.total }}</span>
+</div>
+</sc-if>
+<sc-if value="{{ row.isTxn }}" hint-placeholder-val="{{ true }}">
+<div onClick="{{ row.open }}" style="display:flex;align-items:center;gap:13px;padding:11px 12px;border-radius:20px;cursor:pointer" style-hover="background:#fdf8f0">
+<div style="width:42px;height:42px;border-radius:999px;flex:none;display:flex;align-items:center;justify-content:center;font-family:Caprasimo,serif;font-size:15px;background:{{ row.tint }};color:{{ row.ink }}">{{ row.initial }}</div>
+<div style="flex:1;min-width:0">
+<div style="font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ row.merchant }}</div>
+<div style="font-size:12.5px;color:rgba(32,30,29,0.55)">{{ row.category }}</div>
+</div>
+<div style="font-size:15.5px;font-weight:700;flex:none;color:{{ row.amountColor }}">{{ row.amountText }}</div>
+</div>
+</sc-if>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+<div style="padding:2px 20px 130px">
+<div onClick="{{ back }}" style="display:inline-flex;align-items:center;gap:7px;padding:8px 15px 8px 11px;border-radius:999px;background:#ebddc5;font-size:13px;font-weight:600;color:#645c50;cursor:pointer" style-hover="background:#dcd3c4">‹ {{ backLabel }}</div>
+<div style="display:flex;flex-direction:column;gap:11px;margin:22px 0 0">
+<div style="width:66px;height:66px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-family:Caprasimo,serif;font-size:22px;background:{{ txn.tint }};color:{{ txn.ink }}">{{ txn.initial }}</div>
+<div style="font-family:Caprasimo,serif;font-size:44px;line-height:1;letter-spacing:-0.02em;color:{{ txn.amountColor }}">{{ txn.amountText }}</div>
+<div style="font-size:19px;font-weight:600">{{ txn.merchant }}</div>
+<div style="font-size:13.5px;color:rgba(32,30,29,0.55)">{{ txn.when }}</div>
+</div>
+<div style="margin-top:20px;border-radius:28px;background:#fdf8f0;box-shadow:0 1px 2px rgba(46,43,37,0.12);overflow:hidden">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:15px 18px">
+<span style="font-size:13px;color:rgba(32,30,29,0.55)">Category</span>
+<div style="display:flex;align-items:center;gap:9px">
+<div style="width:10px;height:10px;border-radius:999px;background:{{ txn.ink }}"></div>
+<span style="font-size:14.5px;font-weight:600">{{ txn.category }}</span>
+</div>
+</div>
+<div style="height:1px;background:rgba(32,30,29,0.1)"></div>
+<div onClick="{{ openTxnAccount }}" style="display:flex;align-items:center;justify-content:space-between;padding:15px 18px;cursor:pointer" style-hover="background:#f9f4ed">
+<span style="font-size:13px;color:rgba(32,30,29,0.55)">{{ txn.directionLabel }}</span>
+<div style="display:flex;align-items:center;gap:8px">
+<span style="font-size:14.5px;font-weight:600">{{ txn.accountName }}</span>
+<span style="font-size:17px;color:rgba(32,30,29,0.35)">›</span>
+</div>
+</div>
+<div style="height:1px;background:rgba(32,30,29,0.1)"></div>
+<div style="display:flex;align-items:center;justify-content:space-between;padding:15px 18px">
+<span style="font-size:13px;color:rgba(32,30,29,0.55)">Added by</span>
+<span style="font-size:14.5px;font-weight:600">{{ txn.sourceText }}</span>
+</div>
+</div>
+<div style="margin-top:20px">
+<div style="font-size:11.5px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(32,30,29,0.45);margin-bottom:8px">{{ txn.smsHeading }}</div>
+<div style="border-radius:28px;background:rgba(122,138,94,0.14);padding:16px 18px;display:flex;flex-direction:column;gap:9px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+<span style="font-size:12.5px;font-weight:700;color:#56633f">{{ txn.smsSender }}</span>
+<span style="font-size:12px;color:rgba(32,30,29,0.5)">{{ txn.smsTime }}</span>
+</div>
+<p style="margin:0;font-size:13.5px;line-height:1.6;text-wrap:pretty">{{ txn.sms }}</p>
+</div>
+</div>
+<div style="display:flex;gap:10px;margin-top:18px">
+<div onClick="{{ toastEdit }}" style="flex:1;padding:14px;border-radius:999px;background:#c67139;color:#fff2eb;font-family:Caprasimo,serif;font-size:14px;text-align:center;cursor:pointer" style-hover="background:#b2622d">Change category</div>
+<div onClick="{{ toastSplit }}" style="flex:1;padding:14px;border-radius:999px;border:1px solid rgba(32,30,29,0.25);font-family:Caprasimo,serif;font-size:14px;text-align:center;cursor:pointer" style-hover="background:#ebddc5">Split it</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isAdd }}" hint-placeholder-val="{{ false }}">
+<div style="padding:2px 20px 130px">
+<div onClick="{{ back }}" style="display:inline-flex;align-items:center;gap:7px;padding:8px 15px 8px 11px;border-radius:999px;background:#ebddc5;font-size:13px;font-weight:600;color:#645c50;cursor:pointer" style-hover="background:#dcd3c4">‹ Cancel</div>
+<h2 style="font-family:Caprasimo,serif;font-weight:400;font-size:28px;line-height:1.1;margin:18px 0 4px">Add it yourself</h2>
+<p style="font-size:13.5px;color:rgba(32,30,29,0.58);margin:0 0 16px">For cash, and anything no bank ever texted you about.</p>
+<div style="display:flex;gap:8px;margin-bottom:16px">
+<div onClick="{{ setExpense }}" style="flex:1;padding:12px;border-radius:999px;text-align:center;font-size:13.5px;font-weight:600;cursor:pointer;background:{{ form.expenseBg }};color:{{ form.expenseInk }}">Spent</div>
+<div onClick="{{ setIncome }}" style="flex:1;padding:12px;border-radius:999px;text-align:center;font-size:13.5px;font-weight:600;cursor:pointer;background:{{ form.incomeBg }};color:{{ form.incomeInk }}">Received</div>
+</div>
+<div style="border-radius:28px;background:#fdf8f0;box-shadow:0 1px 2px rgba(46,43,37,0.12);padding:18px 22px;display:flex;align-items:center;gap:8px;margin-bottom:16px">
+<span style="font-family:Caprasimo,serif;font-size:34px;color:rgba(32,30,29,0.35)">₹</span>
+<input value="{{ form.amount }}" onChange="{{ onAmount }}" placeholder="0" inputmode="decimal" style="flex:1;min-width:0;width:100%;border:0;background:transparent;outline:none;font-family:Caprasimo,serif;font-size:34px;color:#201e1d" />
+</div>
+<div style="display:flex;flex-direction:column;gap:15px">
+<div>
+<div style="font-size:11.5px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(32,30,29,0.5);margin-bottom:7px">Merchant</div>
+<input value="{{ form.merchant }}" onChange="{{ onMerchant }}" placeholder="Who got the money?" style="width:100%;padding:14px 18px;border-radius:999px;border:1px solid rgba(32,30,29,0.2);background:#fdf8f0;font-family:Figtree,sans-serif;font-size:14.5px;color:#201e1d;outline:none" />
+</div>
+<div>
+<div style="font-size:11.5px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(32,30,29,0.5);margin-bottom:7px">Category</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px">
+<sc-for list="{{ catChips }}" as="c" hint-placeholder-count="7">
+<div onClick="{{ c.pick }}" style="padding:9px 15px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;background:{{ c.bg }};color:{{ c.ink }};border:1px solid {{ c.border }}">{{ c.name }}</div>
+</sc-for>
+</div>
+</div>
+<div>
+<div style="font-size:11.5px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(32,30,29,0.5);margin-bottom:7px">Account</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{ accountChoices }}" as="a" hint-placeholder-count="3">
+<div onClick="{{ a.pick }}" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:22px;cursor:pointer;background:{{ a.bg }};border:1px solid {{ a.border }}">
+<div style="width:36px;height:36px;border-radius:999px;flex:none;display:flex;align-items:center;justify-content:center;font-family:Caprasimo,serif;font-size:13px;background:{{ a.tint }};color:{{ a.ink }}">{{ a.initial }}</div>
+<div style="flex:1;min-width:0">
+<div style="font-size:14px;font-weight:600">{{ a.name }}</div>
+<div style="font-size:12px;color:rgba(32,30,29,0.55)">{{ a.meta }}</div>
+</div>
+<div style="width:20px;height:20px;border-radius:999px;flex:none;border:2px solid {{ a.dotBorder }};background:{{ a.dot }}"></div>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+<div onClick="{{ save }}" style="margin-top:22px;padding:16px;border-radius:999px;background:#c67139;color:#fff2eb;font-family:Caprasimo,serif;font-size:16px;text-align:center;cursor:pointer" style-hover="background:#b2622d">Save it</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+<div style="padding:2px 20px 130px">
+<div style="font-size:11.5px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(32,30,29,0.5)">Paisa</div>
+<h2 style="font-family:Caprasimo,serif;font-weight:400;font-size:30px;line-height:1.1;margin:3px 0 18px">Settings</h2>
+
+<div style="font-size:11.5px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(32,30,29,0.45);margin:0 4px 8px">Messages</div>
+<div style="border-radius:28px;background:#fdf8f0;box-shadow:0 1px 2px rgba(46,43,37,0.12);overflow:hidden">
+<sc-for list="{{ toggles }}" as="s" hint-placeholder-count="3">
+<div onClick="{{ s.toggle }}" style="display:flex;align-items:center;gap:14px;padding:15px 18px;cursor:pointer;border-bottom:1px solid rgba(32,30,29,0.09)" style-hover="background:#f9f4ed">
+<div style="flex:1;min-width:0">
+<div style="font-size:14.5px;font-weight:600">{{ s.label }}</div>
+<div style="font-size:12.5px;line-height:1.5;color:rgba(32,30,29,0.55);text-wrap:pretty">{{ s.note }}</div>
+</div>
+<div style="width:46px;height:27px;border-radius:999px;flex:none;padding:3px;display:flex;background:{{ s.trackBg }};justify-content:{{ s.knobPos }}">
+<div style="width:21px;height:21px;border-radius:999px;background:#fdf8f0;box-shadow:0 1px 2px rgba(46,43,37,0.35)"></div>
+</div>
+</div>
+</sc-for>
+<div onClick="{{ syncNow }}" style="display:flex;align-items:center;gap:14px;padding:15px 18px;cursor:pointer" style-hover="background:#f9f4ed">
+<div style="flex:1">
+<div style="font-size:14.5px;font-weight:600">Scan messages now</div>
+<div style="font-size:12.5px;color:rgba(32,30,29,0.55)">{{ syncNote }}</div>
+</div>
+<div style="padding:9px 17px;border-radius:999px;background:rgba(122,138,94,0.22);font-size:13px;font-weight:700;color:#3d472b;flex:none">Scan</div>
+</div>
+</div>
+
+<div style="font-size:11.5px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(32,30,29,0.45);margin:22px 4px 8px">Your money</div>
+<div style="border-radius:28px;background:#fdf8f0;box-shadow:0 1px 2px rgba(46,43,37,0.12);overflow:hidden">
+<sc-for list="{{ valueRows }}" as="s" hint-placeholder-count="5">
+<div onClick="{{ s.tap }}" style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 18px;cursor:pointer;border-bottom:1px solid rgba(32,30,29,0.09)" style-hover="background:#f9f4ed">
+<span style="font-size:14.5px;font-weight:600">{{ s.label }}</span>
+<div style="display:flex;align-items:center;gap:8px">
+<span style="font-size:13.5px;color:rgba(32,30,29,0.6)">{{ s.value }}</span>
+<span style="font-size:17px;color:rgba(32,30,29,0.35)">›</span>
+</div>
+</div>
+</sc-for>
+</div>
+
+<div style="margin-top:18px;padding:16px 18px;border-radius:26px;background:rgba(122,138,94,0.15);font-size:12.5px;line-height:1.6;color:#3d472b">Messages are read and matched on your phone. Nothing about them leaves the device — Paisa keeps only the amount, merchant and account it pulled out.</div>
+<div onClick="{{ toastExport }}" style="margin-top:14px;padding:15px;border-radius:999px;border:1px solid rgba(32,30,29,0.25);font-family:Caprasimo,serif;font-size:14px;text-align:center;cursor:pointer" style-hover="background:#ebddc5">Export {{ monthShort }} as CSV</div>
+</div>
+</sc-if>
+
+</div>
+
+<sc-if value="{{ showFab }}" hint-placeholder-val="{{ true }}">
+<div onClick="{{ goAdd }}" style="position:absolute;right:22px;bottom:44px;z-index:5;display:flex;align-items:center;gap:9px;padding:15px 22px;border-radius:999px;background:#c67139;color:#fff2eb;box-shadow:0 12px 28px rgba(46,43,37,0.28);cursor:pointer;font-family:Caprasimo,serif;font-size:15px" style-hover="background:#b2622d">
+<span style="font-size:19px;line-height:1">+</span>Add
+</div>
+</sc-if>
+
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:20px;right:20px;bottom:112px;z-index:6;padding:14px 18px;border-radius:22px;background:#2e2b25;color:#f9f4ed;font-size:13.5px;line-height:1.45;box-shadow:0 12px 30px rgba(46,43,37,0.35);animation:toastIn 240ms ease-out">{{ toast }}</div>
+</sc-if>
+
+<sc-if value="{{ drawerOpen }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ closeDrawer }}" style="position:absolute;inset:0;z-index:8;background:rgba(46,43,37,0.42);display:flex">
+<div style="width:302px;height:100%;background:#f9f4ed;box-shadow:0 0 40px rgba(46,43,37,0.35);padding:26px 20px;display:flex;flex-direction:column;animation:drawerIn 200ms ease-out">
+<div style="width:44px;height:44px;border-radius:999px;background:#c67139;margin-bottom:14px"></div>
+<div style="font-family:Caprasimo,serif;font-size:24px;line-height:1.1">Paisa</div>
+<div style="font-size:12.5px;color:rgba(32,30,29,0.55);margin-top:2px">{{ drawerNote }}</div>
+<div style="display:flex;flex-direction:column;gap:4px;margin-top:22px">
+<sc-for list="{{ navItems }}" as="n" hint-placeholder-count="4">
+<div onClick="{{ n.go }}" style="display:flex;align-items:center;gap:13px;padding:13px 15px;border-radius:999px;cursor:pointer;background:{{ n.bg }}">
+<div style="width:11px;height:11px;border-radius:999px;flex:none;background:{{ n.dot }}"></div>
+<span style="font-size:14.5px;font-weight:600;color:{{ n.ink }}">{{ n.label }}</span>
+</div>
+</sc-for>
+</div>
+<div style="flex:1"></div>
+<div style="padding:15px 16px;border-radius:24px;background:rgba(122,138,94,0.18);font-size:12.5px;line-height:1.55;color:#3d472b">{{ drawerFooter }}</div>
+</div>
+</div>
+</sc-if>
+
+<div style="flex:none;height:22px;display:flex;align-items:center;justify-content:center;position:relative;z-index:3">
+<div style="width:110px;height:4px;border-radius:999px;background:rgba(32,30,29,0.4)"></div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="1b" style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;align-items:baseline;gap:9px;font-size:11.5px;color:rgba(32,30,29,0.55)"><a href="#1b" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(32,30,29,0.09);color:#201e1d;border-radius:5px;text-decoration:none">1b</a>Home alt — ledger, one dense line per spend</div>
+<div style="width:400px;border-radius:34px;overflow:hidden;background:#f5ead8;border:1px solid rgba(32,30,29,0.12);box-shadow:0 8px 24px rgba(46,43,37,0.14)">
+<div style="padding:22px 20px 16px;background:#201e1d;color:#f5ead8">
+<div style="display:flex;align-items:center;justify-content:space-between">
+<div style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(245,234,216,0.6)">August 2026</div>
+<div style="display:flex;gap:6px">
+<div style="width:30px;height:30px;border-radius:999px;background:rgba(245,234,216,0.14);display:flex;align-items:center;justify-content:center;font-size:14px">‹</div>
+<div style="width:30px;height:30px;border-radius:999px;background:rgba(245,234,216,0.14);display:flex;align-items:center;justify-content:center;font-size:14px">›</div>
+</div>
+</div>
+<div style="font-family:Caprasimo,serif;font-size:40px;line-height:1.05;margin-top:10px">₹41,286<span style="font-size:19px;color:rgba(245,234,216,0.55)"> out</span></div>
+<div style="display:flex;gap:10px;margin-top:14px">
+<div style="flex:1;height:8px;border-radius:999px;background:#c67139"></div>
+<div style="width:52px;height:8px;border-radius:999px;background:#7a8a5e"></div>
+</div>
+<div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:rgba(245,234,216,0.65)">
+<span>3 accounts · 34 entries</span><span>₹68,000 in</span>
+</div>
+</div>
+<div style="padding:14px 18px 20px">
+<div style="display:flex;gap:7px;overflow:hidden">
+<div style="padding:7px 13px;border-radius:999px;background:#201e1d;color:#f5ead8;font-size:12px;font-weight:600;flex:none">All</div>
+<div style="padding:7px 13px;border-radius:999px;background:#ebddc5;font-size:12px;font-weight:600;flex:none">ICICI</div>
+<div style="padding:7px 13px;border-radius:999px;background:#ebddc5;font-size:12px;font-weight:600;flex:none">Slice Bank</div>
+<div style="padding:7px 13px;border-radius:999px;background:#ebddc5;font-size:12px;font-weight:600;flex:none">Card</div>
+</div>
+<div style="margin-top:14px;font-size:10.5px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(32,30,29,0.4)">Today · ₹1,148</div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:11px 0;border-bottom:1px solid rgba(32,30,29,0.1)">
+<div><div style="font-size:14.5px;font-weight:600">Blinkit</div><div style="font-size:12px;color:rgba(32,30,29,0.5)">Groceries · Slice Card ••5678</div></div>
+<div style="font-size:15px;font-weight:700">₹842</div>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:11px 0;border-bottom:1px solid rgba(32,30,29,0.1)">
+<div><div style="font-size:14.5px;font-weight:600">Namma Metro</div><div style="font-size:12px;color:rgba(32,30,29,0.5)">Travel · ICICI ••3717</div></div>
+<div style="font-size:15px;font-weight:700">₹306</div>
+</div>
+<div style="margin-top:16px;font-size:10.5px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(32,30,29,0.4)">Yesterday · ₹3,690</div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:11px 0;border-bottom:1px solid rgba(32,30,29,0.1)">
+<div><div style="font-size:14.5px;font-weight:600">Airtel postpaid</div><div style="font-size:12px;color:rgba(32,30,29,0.5)">Bills · ICICI ••3717</div></div>
+<div style="font-size:15px;font-weight:700">₹899</div>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:11px 0">
+<div><div style="font-size:14.5px;font-weight:600">Third Wave Coffee</div><div style="font-size:12px;color:rgba(32,30,29,0.5)">Eating out · Slice Bank ••1234</div></div>
+<div style="font-size:15px;font-weight:700">₹470</div>
+</div>
+<div style="margin-top:10px;font-size:12.5px;color:#8c491a;font-weight:600">Trades the summary card for reach — totals live in the dark header, and rows lose the avatar so nine fit on screen.</div>
+</div>
+</div>
+</div>
+
+<div id="1c" style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;align-items:baseline;gap:9px;font-size:11.5px;color:rgba(32,30,29,0.55)"><a href="#1c" style="font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(32,30,29,0.09);color:#201e1d;border-radius:5px;text-decoration:none">1c</a>Detail alt — the SMS is the receipt</div>
+<div style="width:400px;border-radius:34px;overflow:hidden;background:#f5ead8;border:1px solid rgba(32,30,29,0.12);box-shadow:0 8px 24px rgba(46,43,37,0.14);padding:22px 20px 24px">
+<div style="display:inline-flex;align-items:center;gap:7px;padding:8px 15px 8px 11px;border-radius:999px;background:#ebddc5;font-size:13px;font-weight:600;color:#645c50">‹ Home</div>
+<div style="margin-top:18px;border-radius:26px;background:#fdf8f0;box-shadow:0 3px 10px rgba(46,43,37,0.12);overflow:hidden">
+<div style="padding:16px 18px;background:rgba(122,138,94,0.16);display:flex;align-items:center;justify-content:space-between">
+<span style="font-size:12.5px;font-weight:700;color:#56633f">VM-ICICIB</span>
+<span style="font-size:12px;color:rgba(32,30,29,0.5)">Today, 4:12 pm</span>
+</div>
+<p style="margin:0;padding:16px 18px;font-size:14px;line-height:1.65;text-wrap:pretty">INR <mark style="background:rgba(198,113,57,0.28);border-radius:5px;padding:1px 3px">842.00</mark> debited from A/c <mark style="background:rgba(122,138,94,0.3);border-radius:5px;padding:1px 3px">XX3717</mark> on 24-Aug-26 to <mark style="background:rgba(198,113,57,0.28);border-radius:5px;padding:1px 3px">BLINKIT</mark>. Avl bal INR 48,260.14. Not you? Call 18002662.</p>
+<div style="padding:0 18px 16px;font-size:12px;color:rgba(32,30,29,0.5)">Highlighted: what Paisa pulled out of the message.</div>
+</div>
+<div style="margin-top:16px;display:flex;flex-direction:column;gap:9px">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-radius:22px;background:#ebddc5">
+<span style="font-size:13px;color:rgba(32,30,29,0.6)">Amount</span><span style="font-family:Caprasimo,serif;font-size:20px;color:#8c491a">₹842</span>
+</div>
+<div style="display:flex;gap:9px">
+<div style="flex:1;padding:14px 16px;border-radius:22px;background:#ebddc5">
+<div style="font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:rgba(32,30,29,0.45)">Category</div>
+<div style="font-size:14.5px;font-weight:600;margin-top:3px">Groceries</div>
+</div>
+<div style="flex:1;padding:14px 16px;border-radius:22px;background:#ebddc5">
+<div style="font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:rgba(32,30,29,0.45)">Debited from</div>
+<div style="font-size:14.5px;font-weight:600;margin-top:3px">ICICI ••3717</div>
+</div>
+</div>
+</div>
+<div style="margin-top:14px;font-size:12.5px;color:#8c491a;font-weight:600">Leads with the message so you can audit the parse at a glance; fields sit under it as chips.</div>
+</div>
+</div>
+
+</div>
+<p style="margin:26px 0 0;font-size:12.5px;color:rgba(32,30,29,0.5)">Try next: “make <a href="#1a">1a</a>’s home use <a href="#1b">1b</a>’s dark totals header” · “add a category breakdown screen” · “show the needs-review inbox instead of silent adds”</p>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1400,&quot;height&quot;:1040},&quot;userName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Aditya&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Content&quot;},&quot;showSearch&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Home&quot;},&quot;showSourceBadge&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Home&quot;},&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;home&quot;,&quot;accounts&quot;,&quot;add&quot;,&quot;settings&quot;],&quot;default&quot;:&quot;add&quot;,&quot;tsType&quot;:&quot;'home' | 'accounts' | 'add' | 'settings'&quot;,&quot;section&quot;:&quot;Home&quot;}}">
+const ACCOUNTS = [
+  { id: 'icici', name: 'ICICI Bank ••3717', short: 'ICICI ••3717', initial: 'IC', meta: 'Savings · VM-ICICIB', tint: 'rgba(198,113,57,0.2)', ink: '#8c491a', balance: 48260, balanceLabel: 'Balance' },
+  { id: 'sliceb', name: 'Slice Bank ••1234', short: 'Slice Bank ••1234', initial: 'SB', meta: 'Savings · AD-SLICEB', tint: 'rgba(122,138,94,0.24)', ink: '#56633f', balance: 12480, balanceLabel: 'Balance' },
+  { id: 'slicec', name: 'Slice Credit Card ••5678', short: 'Slice Card ••5678', initial: 'SC', meta: 'Credit card · AD-SLICE', tint: 'rgba(100,92,80,0.22)', ink: '#474238', balance: 6340, balanceLabel: 'Outstanding' },
+  { id: 'hdfc', name: 'HDFC Bank ••9042', short: 'HDFC ••9042', initial: 'HD', meta: 'Savings · VM-HDFCBK', tint: 'rgba(198,113,57,0.14)', ink: '#b2622d', balance: 21740, balanceLabel: 'Balance' },
+  { id: 'sbi', name: 'SBI ••7781', short: 'SBI ••7781', initial: 'SB', meta: 'Savings · VK-SBIINB', tint: 'rgba(122,138,94,0.18)', ink: '#728157', balance: 9310, balanceLabel: 'Balance' },
+  { id: 'axis', name: 'Axis Bank ••2210', short: 'Axis ••2210', initial: 'AX', meta: 'Salary account · AD-AXISBK', tint: 'rgba(100,92,80,0.16)', ink: '#645c50', balance: 3120, balanceLabel: 'Balance' },
+  { id: 'amzn', name: 'Amazon Pay ICICI ••6603', short: 'Amazon card ••6603', initial: 'AP', meta: 'Credit card · VM-ICICIB', tint: 'rgba(198,113,57,0.24)', ink: '#8c491a', balance: 4180, balanceLabel: 'Outstanding' },
+  { id: 'paytm', name: 'Paytm Wallet', short: 'Paytm wallet', initial: 'PT', meta: 'Wallet · VM-PYTMPB', tint: 'rgba(122,138,94,0.28)', ink: '#3d472b', balance: 640, balanceLabel: 'Balance' },
+];
+
+const CATS = ['Groceries', 'Eating out', 'Travel', 'Bills', 'Shopping', 'Health', 'Rent', 'Salary', 'Cash'];
+
+const TXNS = [
+  { id: 't1', merchant: 'Blinkit', amount: -842, cat: 'Groceries', acc: 'slicec', day: 0, time: '4:12 pm', src: 'sms', sender: 'AD-SLICE', sms: 'INR 842.00 spent on your Slice Credit Card XX5678 on 24-Aug-26 at BLINKIT. Avl limit INR 43,660. Not you? Report at slice.in/help' },
+  { id: 't2', merchant: 'Namma Metro', amount: -306, cat: 'Travel', acc: 'icici', day: 0, time: '9:04 am', src: 'sms', sender: 'VM-ICICIB', sms: 'INR 306.00 debited from A/c XX3717 on 24-Aug-26 towards BMRCL RECHARGE. Avl bal INR 48,260.14. Not you? Call 18002662.' },
+  { id: 't3', merchant: 'Airtel postpaid', amount: -899, cat: 'Bills', acc: 'icici', day: 1, time: '7:30 pm', src: 'sms', sender: 'VM-ICICIB', sms: 'INR 899.00 debited from A/c XX3717 on 23-Aug-26 towards AIRTEL AUTOPAY. Avl bal INR 48,566.14.' },
+  { id: 't4', merchant: 'Third Wave Coffee', amount: -470, cat: 'Eating out', acc: 'sliceb', day: 1, time: '5:48 pm', src: 'sms', sender: 'AD-SLICEB', sms: 'Rs.470.00 debited from Slice Bank A/c XX1234 via UPI to THIRDWAVE COFFEE on 23-Aug-26. UPI Ref 552830174421.' },
+  { id: 't5', merchant: 'Auto to work', amount: -80, cat: 'Travel', acc: 'icici', day: 1, time: '9:12 am', src: 'manual' },
+  { id: 't6', merchant: 'Zepto', amount: -1321, cat: 'Groceries', acc: 'slicec', day: 2, time: '8:20 pm', src: 'sms', sender: 'AD-SLICE', sms: 'INR 1,321.00 spent on your Slice Credit Card XX5678 on 22-Aug-26 at ZEPTO MARKETPLACE. Avl limit INR 44,502.' },
+  { id: 't7', merchant: 'Cult.fit', amount: -2199, cat: 'Health', acc: 'sliceb', day: 2, time: '11:02 am', src: 'sms', sender: 'AD-SLICEB', sms: 'Rs.2,199.00 debited from Slice Bank A/c XX1234 via UPI to CUREFIT HEALTHCARE on 22-Aug-26. UPI Ref 552441908877.' },
+  { id: 't8', merchant: 'Rent — Aug', amount: -24000, cat: 'Rent', acc: 'icici', day: 3, time: '10:00 am', src: 'sms', sender: 'VM-ICICIB', sms: 'INR 24,000.00 debited from A/c XX3717 on 21-Aug-26 towards IMPS/P2A/RAMESH K. Avl bal INR 51,214.14.' },
+  { id: 't9', merchant: 'Salary — Aug', amount: 68000, cat: 'Salary', acc: 'icici', day: 3, time: '6:31 am', src: 'sms', sender: 'VM-ICICIB', sms: 'INR 68,000.00 credited to A/c XX3717 on 21-Aug-26 by NEFT SALARY AUG. Avl bal INR 75,214.14.' },
+  { id: 't10', merchant: 'Decathlon', amount: -3450, cat: 'Shopping', acc: 'slicec', day: 4, time: '3:40 pm', src: 'sms', sender: 'AD-SLICE', sms: 'INR 3,450.00 spent on your Slice Credit Card XX5678 on 20-Aug-26 at DECATHLON SPORTS. Avl limit INR 45,823.' },
+  { id: 't11', merchant: 'Vegetables — cash', amount: -260, cat: 'Groceries', acc: 'sliceb', day: 4, time: '8:05 am', src: 'manual' },
+  { id: 't12', merchant: 'Swiggy', amount: -638, cat: 'Eating out', acc: 'sliceb', day: 5, time: '9:25 pm', src: 'sms', sender: 'AD-SLICEB', sms: 'Rs.638.00 debited from Slice Bank A/c XX1234 via UPI to SWIGGY LIMITED on 19-Aug-26. UPI Ref 551209884413.' },
+  { id: 't13', merchant: 'Amazon.in', amount: -1899, cat: 'Shopping', acc: 'amzn', day: 0, time: '11:40 am', src: 'sms', sender: 'VM-ICICIB', sms: 'INR 1,899.00 spent on Amazon Pay ICICI Card XX6603 on 24-Aug-26 at AMAZON.IN. Avl limit INR 95,820.' },
+  { id: 't14', merchant: 'Indian Oil', amount: -2400, cat: 'Travel', acc: 'hdfc', day: 1, time: '8:15 pm', src: 'sms', sender: 'VM-HDFCBK', sms: 'Rs.2400.00 debited from HDFC Bank A/c XX9042 on 23-Aug-26 to INDIANOIL RETAIL. UPI Ref 623881904412.' },
+  { id: 't15', merchant: 'Apollo Pharmacy', amount: -735, cat: 'Health', acc: 'sbi', day: 2, time: '6:55 pm', src: 'sms', sender: 'VK-SBIINB', sms: 'Rs.735.00 debited from A/c XX7781 on 22-Aug-26 to APOLLO PHARMACY via UPI. Ref 441209778812.' },
+  { id: 't16', merchant: 'Auto — Paytm', amount: -120, cat: 'Travel', acc: 'paytm', day: 2, time: '9:35 am', src: 'sms', sender: 'VM-PYTMPB', sms: 'Rs.120 paid from your Paytm Wallet to NAMMA AUTO on 22-Aug-26. Wallet balance Rs.640.' },
+  { id: 't17', merchant: 'Electricity — BESCOM', amount: -1640, cat: 'Bills', acc: 'hdfc', day: 3, time: '1:20 pm', src: 'sms', sender: 'VM-HDFCBK', sms: 'Rs.1640.00 debited from HDFC Bank A/c XX9042 on 21-Aug-26 to BESCOM BILLPAY. Avl bal Rs.21,740.00.' },
+  { id: 't18', merchant: 'Zomato', amount: -412, cat: 'Eating out', acc: 'axis', day: 4, time: '10:05 pm', src: 'sms', sender: 'AD-AXISBK', sms: 'INR 412.00 debited from Axis Bank A/c XX2210 on 20-Aug-26 to ZOMATO LTD via UPI. Ref 778120994412.' },
+];
+
+const CAT_TINT = {
+  Groceries: ['rgba(122,138,94,0.24)', '#56633f'],
+  'Eating out': ['rgba(198,113,57,0.2)', '#8c491a'],
+  Travel: ['rgba(100,92,80,0.2)', '#474238'],
+  Bills: ['rgba(198,113,57,0.14)', '#b2622d'],
+  Shopping: ['rgba(122,138,94,0.18)', '#728157'],
+  Health: ['rgba(122,138,94,0.3)', '#3d472b'],
+  Rent: ['rgba(100,92,80,0.26)', '#2e2b25'],
+  Salary: ['rgba(122,138,94,0.28)', '#3d472b'],
+  Cash: ['rgba(100,92,80,0.16)', '#645c50'],
+};
+
+const DAY_LABEL = ['Today', 'Yesterday', 'Fri, 22 Aug', 'Thu, 21 Aug', 'Wed, 20 Aug', 'Tue, 19 Aug'];
+
+class Component extends DCLogic {
+  state = {
+    screen: this.props.startScreen || 'home', accId: null, txnId: null, from: 'home',
+    query: '', chip: 'All', drawerOpen: false, monthIdx: 0, toast: null,
+    txns: TXNS, form: { kind: 'expense', amount: '', merchant: '', cat: 'Groceries', acc: 'icici' },
+    toggles: { read: true, autoAdd: true, notify: true },
+    scanned: false,
+  };
+
+  money(n) {
+    const s = Math.round(Math.abs(n)).toLocaleString('en-IN');
+    return '₹' + s;
+  }
+  acc(id) { return ACCOUNTS.find(a => a.id === id) || ACCOUNTS[0]; }
+  flash(msg) {
+    clearTimeout(this._t);
+    this.setState({ toast: msg });
+    this._t = setTimeout(() => this.setState({ toast: null }), 2600);
+  }
+  componentWillUnmount() { clearTimeout(this._t); }
+  go(screen, extra) { this.setState(Object.assign({ screen, drawerOpen: false }, extra || {})); }
+
+  openTxn(id, from) { this.setState({ screen: 'detail', txnId: id, from: from || this.state.screen }); }
+
+  buildRows(input) {
+    const list = input.slice().sort((a, b) => a.day - b.day);
+    const out = [];
+    let lastDay = -1;
+    list.forEach(t => {
+      if (t.day !== lastDay) {
+        lastDay = t.day;
+        const total = list.filter(x => x.day === t.day && x.amount < 0).reduce((s, x) => s + x.amount, 0);
+        out.push({ key: 'h' + t.day, isHeader: true, isTxn: false, label: DAY_LABEL[t.day] || 'Earlier', total: total ? this.money(total) + ' out' : '—' });
+      }
+      const tint = CAT_TINT[t.cat] || CAT_TINT.Cash;
+      const a = this.acc(t.acc);
+      out.push({
+        key: t.id, isHeader: false, isTxn: true,
+        merchant: t.merchant, category: t.cat,
+        subtitle: t.cat + ' · ' + a.short,
+        initial: t.merchant.slice(0, 2).toUpperCase(),
+        tint: tint[0], ink: tint[1],
+        amountText: (t.amount > 0 ? '+' : '') + this.money(t.amount),
+        amountColor: t.amount > 0 ? '#56633f' : '#201e1d',
+        sourceLabel: (this.props.showSourceBadge ?? true) ? (t.src === 'sms' ? 'SMS' : 'Manual') : '',
+        sourceColor: t.src === 'sms' ? 'rgba(86,99,63,0.85)' : 'rgba(32,30,29,0.4)',
+        open: () => this.openTxn(t.id),
+      });
+    });
+    return out;
+  }
+
+  renderVals() {
+    const st = this.state;
+    const txns = st.txns;
+    const q = st.query.trim().toLowerCase();
+    const visible = txns.filter(t => {
+      const a = this.acc(t.acc);
+      if (st.chip !== 'All' && a.id !== st.chip) return false;
+      if (!q) return true;
+      return (t.merchant + ' ' + t.cat + ' ' + a.name).toLowerCase().includes(q);
+    });
+    const income = txns.filter(t => t.amount > 0).reduce((s, t) => s + t.amount, 0);
+    const expense = txns.filter(t => t.amount < 0).reduce((s, t) => s + t.amount, 0);
+    const monthNames = ['August 2026', 'July 2026', 'June 2026'];
+    const shortNames = ['Aug', 'Jul', 'Jun'];
+
+    const chipStyle = on => on
+      ? { bg: '#201e1d', ink: '#f5ead8', border: '#201e1d' }
+      : { bg: 'transparent', ink: 'rgba(32,30,29,0.7)', border: 'rgba(32,30,29,0.22)' };
+
+    const filterChips = [{ id: 'All', label: 'All accounts' }].concat(ACCOUNTS.map(a => ({ id: a.id, label: a.short })))
+      .map(c => Object.assign({ key: c.id, label: c.label, pick: () => this.setState({ chip: c.id }) }, chipStyle(st.chip === c.id)));
+
+    const accSpend = id => txns.filter(t => t.acc === id && t.amount < 0).reduce((s, t) => s + t.amount, 0);
+    const accountCards = ACCOUNTS.map(a => ({
+      key: a.id, name: a.name, meta: a.meta, initial: a.initial, tint: a.tint, ink: a.ink,
+      balanceLabel: a.balanceLabel, balanceText: this.money(a.balance), spendText: this.money(accSpend(a.id)),
+      open: () => this.go('account', { accId: a.id }),
+    }));
+
+    const selAcc = this.acc(st.accId);
+    const accTxns = txns.filter(t => t.acc === selAcc.id);
+    const t = txns.find(x => x.id === st.txnId) || txns[0];
+    const tTint = CAT_TINT[t.cat] || CAT_TINT.Cash;
+    const tAcc = this.acc(t.acc);
+
+    const form = st.form;
+    const on = (a, b) => a ? b : null;
+
+    return {
+      isHome: st.screen === 'home', isAccounts: st.screen === 'accounts', isAccount: st.screen === 'account',
+      isDetail: st.screen === 'detail', isAdd: st.screen === 'add', isSettings: st.screen === 'settings',
+      showFab: st.screen === 'home' || st.screen === 'accounts' || st.screen === 'account',
+      barTitle: { home: 'Paisa', accounts: 'Accounts', account: selAcc.short, detail: 'Transaction', add: 'New entry', settings: 'Settings' }[st.screen],
+      greeting: 'Hey ' + (this.props.userName ?? 'Aditya'),
+      showSearch: this.props.showSearch ?? true,
+      monthLabel: monthNames[st.monthIdx], monthShort: shortNames[st.monthIdx],
+      incomeText: this.money(income), expenseText: this.money(expense),
+      netText: this.money(income + expense),
+      countNote: visible.length + ' of ' + txns.length,
+      rows: this.buildRows(visible),
+      noResults: visible.length === 0,
+      query: st.query, hasQuery: st.query.length > 0,
+      filterChips,
+      onQuery: e => this.setState({ query: e.target.value }),
+      clearQuery: () => this.setState({ query: '', chip: 'All' }),
+      prevMonth: () => this.setState({ monthIdx: Math.min(2, st.monthIdx + 1) }),
+      nextMonth: () => this.setState({ monthIdx: Math.max(0, st.monthIdx - 1) }),
+
+      accountsNote: ACCOUNTS.length + ' senders recognised · tap one to see only its transactions',
+      accountCards,
+      acc: {
+        name: selAcc.name, meta: selAcc.meta, initial: selAcc.initial, tint: selAcc.tint, ink: selAcc.ink,
+        balanceLabel: selAcc.balanceLabel, balanceText: this.money(selAcc.balance),
+        spendText: this.money(accSpend(selAcc.id)),
+        countNote: accTxns.length + ' transactions',
+      },
+      accountRows: this.buildRows(accTxns),
+
+      txn: {
+        merchant: t.merchant, category: t.cat, accountName: tAcc.name,
+        initial: t.merchant.slice(0, 2).toUpperCase(), tint: tTint[0], ink: tTint[1],
+        amountText: (t.amount > 0 ? '+' : '') + this.money(t.amount),
+        amountColor: t.amount > 0 ? '#56633f' : '#201e1d',
+        when: (DAY_LABEL[t.day] || 'Earlier') + ' · ' + t.time,
+        directionLabel: t.amount > 0 ? 'Credited to' : 'Debited from',
+        sourceText: t.src === 'sms' ? 'Read from SMS' : 'Added by you',
+        smsHeading: t.src === 'sms' ? 'The message it came from' : 'No message',
+        smsSender: t.src === 'sms' ? t.sender : 'Manual entry',
+        smsTime: (DAY_LABEL[t.day] || 'Earlier') + ', ' + t.time,
+        sms: t.src === 'sms' ? t.sms : 'You added this one by hand, so there is no bank message to show.',
+      },
+      backLabel: st.from === 'account' ? selAcc.short : st.from === 'accounts' ? 'Accounts' : 'Home',
+      back: () => this.setState({ screen: st.from === 'detail' ? 'home' : st.from }),
+      openTxnAccount: () => this.go('account', { accId: t.acc }),
+      toastEdit: () => this.flash('Category picker would open here.'),
+      toastSplit: () => this.flash('Splitting lets you cut one spend across categories.'),
+
+      form: {
+        amount: form.amount, merchant: form.merchant,
+        expenseBg: form.kind === 'expense' ? '#c67139' : '#ebddc5',
+        expenseInk: form.kind === 'expense' ? '#fff2eb' : 'rgba(32,30,29,0.65)',
+        incomeBg: form.kind === 'income' ? '#7a8a5e' : '#ebddc5',
+        incomeInk: form.kind === 'income' ? '#f0fae1' : 'rgba(32,30,29,0.65)',
+      },
+      setExpense: () => this.setState({ form: Object.assign({}, form, { kind: 'expense' }) }),
+      setIncome: () => this.setState({ form: Object.assign({}, form, { kind: 'income' }) }),
+      onAmount: e => this.setState({ form: Object.assign({}, form, { amount: e.target.value.replace(/[^0-9.]/g, '') }) }),
+      onMerchant: e => this.setState({ form: Object.assign({}, form, { merchant: e.target.value }) }),
+      catChips: CATS.map(c => ({
+        key: c, name: c,
+        bg: form.cat === c ? '#201e1d' : 'transparent',
+        ink: form.cat === c ? '#f5ead8' : 'rgba(32,30,29,0.7)',
+        border: form.cat === c ? '#201e1d' : 'rgba(32,30,29,0.22)',
+        pick: () => this.setState({ form: Object.assign({}, form, { cat: c }) }),
+      })),
+      accountChoices: ACCOUNTS.map(a => ({
+        key: a.id, name: a.name, meta: a.meta, initial: a.initial, tint: a.tint, ink: a.ink,
+        bg: form.acc === a.id ? '#fdf8f0' : 'transparent',
+        border: form.acc === a.id ? '#c67139' : 'rgba(32,30,29,0.16)',
+        dot: form.acc === a.id ? '#c67139' : 'transparent',
+        dotBorder: form.acc === a.id ? '#c67139' : 'rgba(32,30,29,0.28)',
+        pick: () => this.setState({ form: Object.assign({}, form, { acc: a.id }) }),
+      })),
+      save: () => {
+        const amt = parseFloat(form.amount);
+        if (!amt) { this.flash('Enter an amount first.'); return; }
+        const nt = {
+          id: 'm' + Date.now(), merchant: form.merchant || 'Cash spend',
+          amount: form.kind === 'income' ? amt : -amt, cat: form.cat, acc: form.acc,
+          day: 0, time: 'just now', src: 'manual',
+        };
+        this.setState({
+          txns: [nt].concat(st.txns), screen: 'home',
+          form: { kind: 'expense', amount: '', merchant: '', cat: 'Groceries', acc: 'icici' },
+        });
+        this.flash('Saved — ' + this.money(amt) + ' filed under ' + form.cat + '.');
+      },
+
+      toggles: [
+        { key: 'read', label: 'Read bank messages', note: 'Permission granted · only senders that look like banks', v: st.toggles.read },
+        { key: 'autoAdd', label: 'Add entries silently', note: 'Parsed spends appear straight in the list, editable any time', v: st.toggles.autoAdd },
+        { key: 'notify', label: 'Notify me for each new entry', note: 'A quiet heads-up when something lands', v: st.toggles.notify },
+      ].map(s => ({
+        key: s.key, label: s.label, note: s.note,
+        trackBg: s.v ? '#7a8a5e' : '#dcd3c4',
+        knobPos: s.v ? 'flex-end' : 'flex-start',
+        toggle: () => this.setState({ toggles: Object.assign({}, st.toggles, { [s.key]: !s.v }) }),
+      })),
+      syncNote: st.scanned ? 'Last scan: just now · nothing new' : 'Last scan: 8 minutes ago',
+      syncNow: () => { this.setState({ scanned: true }); this.flash('Scanned 214 messages — everything already filed.'); },
+      valueRows: [
+        { key: 'budget', label: 'Monthly budget', value: '₹45,000', tap: () => this.flash('Budget editor would open here.') },
+        { key: 'accounts', label: 'Manage accounts', value: ACCOUNTS.length + ' active', tap: () => this.go('accounts') },
+        { key: 'cats', label: 'Manage categories', value: CATS.length + ' categories', tap: () => this.flash('Category list with auto-rules would open here.') },
+        { key: 'start', label: 'Month starts on', value: '1st', tap: () => this.flash('Pick your salary date to shift the month.') },
+        { key: 'cur', label: 'Currency', value: '₹ INR', tap: () => this.flash('Currency picker would open here.') },
+      ],
+      toastExport: () => this.flash('CSV for ' + shortNames[st.monthIdx] + ' 2026 ready to share.'),
+
+      drawerOpen: st.drawerOpen,
+      openDrawer: () => this.setState({ drawerOpen: true }),
+      closeDrawer: () => this.setState({ drawerOpen: false }),
+      drawerNote: this.money(expense) + ' out in ' + shortNames[st.monthIdx],
+      drawerFooter: 'Messages are read on your phone. Nothing leaves the device.',
+      navItems: [
+        { key: 'home', label: 'Home', s: 'home', go: () => this.go('home') },
+        { key: 'accounts', label: 'Accounts', s: 'accounts', go: () => this.go('accounts') },
+        { key: 'add', label: 'Add a transaction', s: 'add', go: () => this.go('add') },
+        { key: 'settings', label: 'Settings', s: 'settings', go: () => this.go('settings') },
+      ].map(n => ({
+        key: n.key, label: n.label, go: n.go,
+        bg: st.screen === n.s ? '#ebddc5' : 'transparent',
+        dot: st.screen === n.s ? '#c67139' : 'rgba(32,30,29,0.25)',
+        ink: st.screen === n.s ? '#201e1d' : 'rgba(32,30,29,0.7)',
+      })),
+      toast: st.toast,
+      goAdd: () => this.go('add'),
+      goSettings: () => this.go('settings'),
+      currency: '₹',
+    };
+  }
+}
+</script>
+</body>
+</html>
