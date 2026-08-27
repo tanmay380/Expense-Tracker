@@ -1,12 +1,16 @@
 package com.example.expensetracker.ui.screens
 
+import android.graphics.drawable.shapes.OvalShape
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -43,6 +47,7 @@ import com.example.expensetracker.ui.MainViewModel
 import com.example.expensetracker.ui.MonthlyStats
 import com.example.expensetracker.ui.UiUtils
 import java.time.YearMonth
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun HomeScreen(
@@ -124,7 +129,7 @@ fun HomeScreenContent(
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(10.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             // Search bar
@@ -144,6 +149,31 @@ fun HomeScreenContent(
             item {
                 if (accounts.isNotEmpty()) {
                     AccountsSection(accounts = accounts)
+                }
+            }
+
+            // Transactions header
+            if (filteredTransactions.isNotEmpty()) {
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "Transactions",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = AppColors.TextPrimary
+                        )
+                        Text(
+                            "${filteredTransactions.size} of ${filteredTransactions.size}",
+                            fontSize = 12.sp,
+                            color = AppColors.TextSecondary
+                        )
+                    }
                 }
             }
 
@@ -203,6 +233,7 @@ fun MonthHeader(
 ) {
     val currentMonth = YearMonth.now()
     val isNextMonthInFuture = month.plusMonths(1) > currentMonth
+    val monthDisplayName = month.format(java.time.format.DateTimeFormatter.ofPattern("MMMM yyyy"))
 
     Column(
         modifier = Modifier
@@ -217,27 +248,51 @@ fun MonthHeader(
         ) {
             MenuButton(onClick = onMenuClick)
 
-            Column (horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    "Expense Tracker",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = AppColors.TextSecondary,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-                Text(
-                    month.toString(),
-                    fontSize = 14.sp,
-                    color = AppColors.TextSecondary,
-                    modifier = Modifier.padding(top = 8.dp),
-                    fontWeight = FontWeight.SemiBold,
-                    textAlign = TextAlign.Center,
-                )
-            }
+            Text(
+                "Paisa",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = AppColors.TextPrimary
+            )
 
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                MonthNavButton(text = "‹", onClick = onPreviousMonth, enabled = true)
-                MonthNavButton(text = "›", onClick = onNextMonth, enabled = !isNextMonthInFuture)
+            Box(modifier = Modifier.size(42.dp))
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 12.dp)
+        ) {
+            Text(
+                "HEY ADITYA",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                color = AppColors.TextSecondary,
+                letterSpacing = 1.sp
+            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    monthDisplayName,
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = AppColors.TextPrimary,
+                    modifier = Modifier.weight(1f)
+                )
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    MonthNavButton(text = "‹", onClick = onPreviousMonth, enabled = true)
+                    MonthNavButton(text = "›", onClick = onNextMonth, enabled = !isNextMonthInFuture)
+                }
             }
         }
     }
@@ -382,16 +437,24 @@ fun SearchBar(query: String, onQueryChange: (String) -> Unit) {
     TextField(
         value = query,
         onValueChange = onQueryChange,
-        placeholder = { Text("Search merchant, category", color = AppColors.TextSecondary) },
+        placeholder = {
+            Text(
+                "Search merchant, category, account",
+                color = AppColors.TextSecondary,
+                fontSize = 13.sp
+            )
+        },
         modifier = Modifier
             .fillMaxWidth()
-            .background(AppColors.CardBackground, RoundedCornerShape(999.dp)),
+            .height(48.dp)
+            .padding(horizontal = 2.dp)
+            .background(AppColors.CardBackground, RoundedCornerShape(12.dp)),
         colors = TextFieldDefaults.colors(
             unfocusedContainerColor = AppColors.CardBackground,
             focusedContainerColor = AppColors.CardBackground,
             unfocusedTextColor = AppColors.TextPrimary,
             focusedTextColor = AppColors.TextPrimary,
-            cursorColor = AppColors.TextPrimary,
+            cursorColor = AppColors.Primary,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent
         ),
@@ -405,18 +468,18 @@ fun AccountsSection(accounts: List<Account>) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(AppColors.CardBackground, RoundedCornerShape(24.dp))
-            .padding(16.dp)
+            .padding(8.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            "All accounts",
-            fontSize = 12.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = AppColors.TextSecondary,
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
+            Box(modifier = Modifier.border(border = BorderStroke(1.dp, color = Color.Black.copy(alpha = 0.2f)), RoundedCornerShape(60.dp))
+                .padding(10.dp),
+                contentAlignment = Alignment.BottomCenter){
 
-        Row() {
+                Text("All Accounts",
+                    color = Color(32f, 30f, 29f, 1f),
+                    fontWeight = FontWeight.Bold)
+            }
+            Spacer(Modifier.width(20.dp))
             accounts.forEach { account ->
 
                 Box(
@@ -436,7 +499,6 @@ fun AccountsSection(accounts: List<Account>) {
                     }
 
                 }
-            }
         }
     }
 }
