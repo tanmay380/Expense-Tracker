@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -465,41 +466,43 @@ fun SearchBar(query: String, onQueryChange: (String) -> Unit) {
 
 @Composable
 fun AccountsSection(accounts: List<Account>) {
-    Row(
+    LazyRow(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-            Box(modifier = Modifier.border(border = BorderStroke(1.dp, color = Color.Black.copy(alpha = 0.2f)), RoundedCornerShape(60.dp))
-                .padding(10.dp),
-                contentAlignment = Alignment.BottomCenter){
-
-                Text("All Accounts",
-                    color = Color(32f, 30f, 29f, 1f),
-                    fontWeight = FontWeight.Bold)
-            }
-            Spacer(Modifier.width(20.dp))
-            accounts.forEach { account ->
-
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(AppColors.CardBackground.copy(alpha = 0.6f), CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-
-                    Column() {
-                        Text(
-                            account.name,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = AppColors.TextPrimary
-                        )
-                    }
-
-                }
+        item {
+            AccountsRow("All Accounts")
         }
+        items(accounts) { account ->
+            AccountsRow(account.name)
+        }
+    }
+}
+
+@Composable
+private fun AccountsRow(account: String) {
+    Box(
+        modifier = Modifier
+            .border(
+                border = BorderStroke(
+                    1.dp,
+                    color = Color.Black.copy(alpha = 0.2f)
+                ), RoundedCornerShape(60.dp)
+            )
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        contentAlignment = Alignment.Center
+    ) {
+
+        Text(
+            account,
+            color = Color.Black,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            softWrap = false
+        )
     }
 }
 
@@ -607,6 +610,10 @@ fun HomeScreenPreview() {
     HomeScreenContent(
         accounts = listOf(
             Account(id = "1", name = "Test 1234", shortName = "Test", bankCode = "TST", accountNumber = "1234"),
+            Account(id = "2", name = "Test 1234", shortName = "Test", bankCode = "TST", accountNumber = "1234"),
+            Account(id = "2", name = "Test 1234", shortName = "Test", bankCode = "TST", accountNumber = "1234"),
+            Account(id = "2", name = "Test 1234", shortName = "Test", bankCode = "TST", accountNumber = "1234"),
+            Account(id = "2", name = "Test 1234", shortName = "Test", bankCode = "TST", accountNumber = "1234"),
             Account(id = "2", name = "Test 1234", shortName = "Test", bankCode = "TST", accountNumber = "1234")
         ),
         selectedMonth = YearMonth.now(),
