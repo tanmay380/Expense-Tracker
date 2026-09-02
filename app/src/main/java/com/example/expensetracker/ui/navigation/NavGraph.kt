@@ -31,9 +31,11 @@ import com.example.expensetracker.ui.MonthlyStats
 import com.example.expensetracker.ui.screens.AddTransactionScreen
 import com.example.expensetracker.ui.screens.HomeScreen
 import com.example.expensetracker.ui.screens.TransactionDetailScreen
+import com.example.expensetracker.ui.screens.SplashScreen
 import kotlinx.coroutines.launch
 
 sealed class Screen(val route: String) {
+    object Splash : Screen("splash")
     object Home : Screen("home")
     object Detail : Screen("detail/{transactionId}") {
         fun createRoute(transactionId: String) = "detail/$transactionId"
@@ -110,8 +112,18 @@ private fun NavGraph_Internal(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Home.route
+        startDestination = Screen.Splash.route
     ) {
+        composable(Screen.Splash.route) {
+            SplashScreen(
+                onNavigateToHome = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
         composable(Screen.Home.route) {
             onScreenChange(Screen.Home)
             HomeScreen(

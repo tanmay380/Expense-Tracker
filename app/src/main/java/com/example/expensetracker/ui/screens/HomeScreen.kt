@@ -179,7 +179,7 @@ fun HomeScreenContent(
             }
 
             // Transactions grouped by date
-            val groupedByDate = filteredTransactions.groupBy { txn ->
+            /*val groupedByDate = filteredTransactions.groupBy { txn ->
                 UiUtils.formatDate(txn.timestamp)
             }.toSortedMap(compareBy<String> {
                 when (it) {
@@ -187,7 +187,13 @@ fun HomeScreenContent(
                     "Yesterday" -> 1
                     else -> 2
                 }
-            })
+            })*/
+            val groupedByDate = filteredTransactions.groupBy { txn ->
+                UiUtils.formatDate(txn.timestamp)
+            }.toMap()
+
+//            Log.d("tanmay", "HomeScreenContent: " + filteredTransactions.size + " \n " + filteredTransactions)
+            Log.d("tanmay", "HomeScreenContent: " + groupedByDate.size + " \n " + groupedByDate.keys + "   " + groupedByDate.values)
 
             groupedByDate.forEach { (date, txns) ->
                 item {

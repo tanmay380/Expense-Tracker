@@ -11,6 +11,13 @@ composeBom = "2024.04.01"
 navigationCompose = "2.7.7"
 ui = "1.6.8"
 material3AdaptiveNavigationSuite = "1.4.0"
+appcompat = "1.6.1"
+material = "1.10.0"
+activityKtx = "1.13.0"
+kotlinStdlib = "2.2.10"
+kotlinTest = "2.2.10"
+runner = "1.5.2"
+core = "1.5.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -31,8 +38,19 @@ androidx-compose-material3 = { group = "androidx.compose.material3", name = "mat
 androidx-compose-material3-adaptive-navigation-suite = { group = "androidx.compose.material3", name = "material3-adaptive-navigation-suite", version.ref = "material3AdaptiveNavigationSuite" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "ui" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activityKtx" }
+kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlinStdlib" }
+kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlinTest" }
+androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
+androidx-core = { group = "androidx.test", name = "core", version.ref = "core" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
+android-lint = { id = "com.android.lint", version.ref = "agp" }
 

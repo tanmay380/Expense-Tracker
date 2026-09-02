@@ -1,48 +1,14 @@
-package com.example.expensetracker.util
+package com.example.sms_parser.util
 
 import java.util.UUID
 
-data class ParsedTransaction(
-    val isValid: Boolean,
-    val amount: Double = 0.0,
-    val merchant: String = "",
-    val cardNumber: String = "", // Last 4 digits
-    val accountNumber: String = "", // Last 4 digits
-    val bankCode: String = "",
-    val bankName: String = "",
-    val category: String = "",
-    val transactionType: TransactionType = TransactionType.DEBIT,
-    val transactionDate: String = "",
-    val referenceId: String = "",
-)
+object SmsExtractors {
+    fun generateTransactionId(): String = UUID.randomUUID().toString()
 
-enum class TransactionType {
-    DEBIT, CREDIT, TRANSFER
-}
-
-abstract class SmsHandler {
-    protected var nextHandler: SmsHandler? = null
-
-    fun chainWith(handler: SmsHandler): SmsHandler {
-        this.nextHandler = handler
-        return this
-    }
-
-    fun handle(sender: String, message: String): ParsedTransaction {
-        return if (canHandle(sender, message)) {
-            parse(sender, message)
-        } else {
-            nextHandler?.handle(sender, message) ?: ParsedTransaction(isValid = false)
-        }
-    }
-
-    abstract fun canHandle(sender: String, message: String): Boolean
-    abstract fun parse(sender: String, message: String): ParsedTransaction
-
-    protected fun extractAmount(message: String): Double? {
+    fun extractAmount(message: String): Double? {
         val patterns = listOf(
             Regex("""(?:INR|Rs\.?)\s*([\d,]+(?:\.\d{2})?)"""),
-            Regex("""(\d+(?:\.\d{2})?)\s*(?:debited|spent|sent)""")
+            Regex("""(\d+(?:\.\d{2})?)\s*(?:debited|spent|sent|credited)""")
         )
 
         for (pattern in patterns) {
@@ -54,7 +20,7 @@ abstract class SmsHandler {
         return null
     }
 
-    protected fun extractMerchant(message: String): String {
+    fun extractMerchant(message: String): String {
         val patterns = listOf(
             Regex("""(?:at|on|to)\s+([A-Z][A-Z0-9\s&-]{2,30})(?:\s+FOOD|\s+on|\s+for|\s+via|[.,])"""),
             Regex("""(?:at|on|to)\s+([A-Z][A-Z0-9\s&-]{2,30})$""")
@@ -69,7 +35,7 @@ abstract class SmsHandler {
         return "Unknown Merchant"
     }
 
-    protected fun extractCardNumber(message: String): String {
+    fun extractCardNumber(message: String): String {
         val patterns = listOf(
             Regex("""(?:card|Card)\s+(?:ending\s+with\s+)?(?:xx|XX)(\d{4})"""),
             Regex("""(?:xx|XX)(\d{4})"""),
@@ -85,7 +51,7 @@ abstract class SmsHandler {
         return ""
     }
 
-    protected fun extractAccountNumber(message: String): String {
+    fun extractAccountNumber(message: String): String {
         val patterns = listOf(
             Regex("""(?:Acc|Account|a/c)\s+(?:xx|XX)(\d{4})"""),
             Regex("""(?:xx|XX)(\d{3,4})""")
@@ -100,7 +66,7 @@ abstract class SmsHandler {
         return ""
     }
 
-    protected fun extractReferenceId(message: String): String {
+    fun extractReferenceId(message: String): String {
         val patterns = listOf(
             Regex("""(?:Ref|Ref No)[.:\s]*(\d{10,})"""),
             Regex("""UPI Ref[.:\s]*(\d{10,})"""),
@@ -116,7 +82,7 @@ abstract class SmsHandler {
         return UUID.randomUUID().toString().takeLast(10)
     }
 
-    protected fun extractDate(message: String): String {
+    fun extractDate(message: String): String {
         val patterns = listOf(
             Regex("""(\d{1,2}[/-]\d{1,2}[/-]\d{2,4})"""),
             Regex("""on\s+(\d{1,2}-[A-Za-z]+-\d{2})""")
@@ -131,7 +97,7 @@ abstract class SmsHandler {
         return ""
     }
 
-    protected fun classifyMerchant(merchant: String): String {
+    fun classifyMerchant(merchant: String): String {
         val text = merchant.lowercase()
         return when {
             text.contains(Regex("(blinkit|zepto|instamart|grocery|walmart|bigbasket|amazon fresh|d.mart)")) -> "Groceries"
@@ -145,5 +111,35 @@ abstract class SmsHandler {
             text.contains(Regex("(googleplay|app store|netflix|spotify|youtube|subscription)")) -> "Entertainment"
             else -> "Shopping"
         }
+    }
+
+    fun extractMerchantFromAccount(message: String): String {
+        val patterns = listOf(
+            Regex("""towards\s+([A-Za-z0-9\s&-]{2,50})(?:\s+for|\s+Ref|$)"""),
+            Regex("""for\s+([A-Za-z0-9\s&-]{2,50})$""")
+        )
+
+        for (pattern in patterns) {
+            val match = pattern.find(message)
+            if (match != null) {
+                return match.groupValues[1].trim()
+            }
+        }
+        return "Bank Transfer"
+    }
+
+    fun extractMerchantFromSavings(message: String): String {
+        val patterns = listOf(
+            Regex("""towards\s+([A-Za-z0-9\s&*-]{2,50})(?:\s+for|$)"""),
+            Regex("""for\s+([A-Za-z0-9\s&*-]{2,50})$""")
+        )
+
+        for (pattern in patterns) {
+            val match = pattern.find(message)
+            if (match != null) {
+                return match.groupValues[1].trim()
+            }
+        }
+        return "Account Debit"
     }
 }
