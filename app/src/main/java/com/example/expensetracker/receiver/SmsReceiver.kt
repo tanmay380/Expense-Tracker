@@ -7,13 +7,14 @@ import android.provider.Telephony
 import android.util.Log
 import com.example.expensetracker.data.AppDatabase
 import com.example.expensetracker.data.Transaction
-import com.example.expensetracker.util.SmsParserFactory
-import com.example.expensetracker.util.TransactionType
+import com.example.expensetracker.data.TransactionRepository
+import com.example.expensetracker.data.Account
+import com.example.sms_parser.factory.SmsParserFactory
+import com.example.sms_parser.data.TransactionType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.UUID
-import kotlin.math.log
 
 class SmsReceiver : BroadcastReceiver() {
     companion object {
@@ -45,7 +46,7 @@ class SmsReceiver : BroadcastReceiver() {
             try {
                 Log.d(TAG, "Starting background processing...")
                 val db = AppDatabase.getDatabase(context)
-                val repository = com.example.expensetracker.data.TransactionRepository(
+                val repository = TransactionRepository(
                     db.transactionDao(),
                     db.accountDao()
                 )
@@ -59,8 +60,8 @@ class SmsReceiver : BroadcastReceiver() {
                 val body = fullMessage.toString()
                 Log.d(TAG, "Full SMS body: $body")
 
-                // Parse using Chain of Command pattern
-                val parsed = SmsParserFactory.parseTransaction(senderFinal, body)
+                // Parse using Factory pattern
+                val parsed = SmsParserFactory.getInstance().parse(senderFinal, body)
                 Log.d(TAG, "Parse result: isValid=${parsed.isValid}, bankCode=${parsed.bankCode}, merchant=${parsed.merchant}, amount=${parsed.amount}")
 
                 if (!parsed.isValid || parsed.bankCode.isEmpty()) {
@@ -78,7 +79,7 @@ class SmsReceiver : BroadcastReceiver() {
                 var account = repository.getAccountByBankCode(accountIdentifier)
                 if (account == null) {
                     val number = parsed.cardNumber.ifEmpty { parsed.accountNumber }
-                    account = com.example.expensetracker.data.Account(
+                    account = Account(
                         id = UUID.randomUUID().toString(),
                         name = "${parsed.bankName} ••$number",
                         shortName = "${parsed.bankCode} ••$number",

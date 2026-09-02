@@ -33,7 +33,7 @@ import com.example.expensetracker.data.Account
 import com.example.expensetracker.data.Transaction
 import com.example.expensetracker.data.TransactionRepository
 import com.example.expensetracker.ui.AppColors
-import com.example.expensetracker.util.SmsParser
+import com.example.sms_parser.util.SmsExtractors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -215,7 +215,7 @@ fun AddTransactionScreen(
                     if (amount.isNotEmpty() && merchant.isNotEmpty()) {
                         CoroutineScope(Dispatchers.IO).launch {
                             val txn = Transaction(
-                                id = SmsParser.generateTransactionId(),
+                                id = SmsExtractors.generateTransactionId(),
                                 merchant = merchant,
                                 amount = if (isExpense) -amount.toDouble() else amount.toDouble(),
                                 category = category,

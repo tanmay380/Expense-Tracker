@@ -77,6 +77,7 @@ object AppColors {
     val CardBackground = Color(0xFFFDF8F0)
     val TextPrimary = Color(0xFF201E1D)
     val TextSecondary = Color(0xFF645C50)
+    val Text = Color(0xFF201E1D)
     val Divider = Color(0xFF201E1D).copy(alpha = 0.1f)
 
     val IncomeGreen = Color(0xFF7A8A5E)
