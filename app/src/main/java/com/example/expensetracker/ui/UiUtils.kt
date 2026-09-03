@@ -43,6 +43,11 @@ object UiUtils {
 
     fun getColorForCategory(category: String): Color {
         return when (category) {
+            "Salary", "Cashback", "Rewards" -> Color(0xFF7A8A5E)
+            "Fuel" -> Color(0xFFB2622D)
+            "UPI" -> Color(0xFF8C491A)
+            "Credit Card Bill" -> Color(0xFF474238)
+            "Personal" -> Color(0xFF728157)
             "Groceries" -> Color(0xFF7A8A5E)
             "Eating out" -> Color(0xFF8C491A)
             "Travel" -> Color(0xFF474238)
@@ -50,13 +55,17 @@ object UiUtils {
             "Shopping" -> Color(0xFF728157)
             "Health" -> Color(0xFF3D472B)
             "Rent" -> Color(0xFF2E2B25)
-            "Salary" -> Color(0xFF3D472B)
             else -> Color(0xFF645C50)
         }
     }
 
     fun getBackgroundColorForCategory(category: String): Color {
         return when (category) {
+            "Salary", "Cashback", "Rewards" -> Color(0xFF7A8A5E).copy(alpha = 0.28f)
+            "Fuel" -> Color(0xFFC67139).copy(alpha = 0.14f)
+            "UPI" -> Color(0xFFC67139).copy(alpha = 0.2f)
+            "Credit Card Bill" -> Color(0xFF645C50).copy(alpha = 0.2f)
+            "Personal" -> Color(0xFF7A8A5E).copy(alpha = 0.18f)
             "Groceries" -> Color(0xFF7A8A5E).copy(alpha = 0.24f)
             "Eating out" -> Color(0xFFC67139).copy(alpha = 0.2f)
             "Travel" -> Color(0xFF645C50).copy(alpha = 0.2f)
@@ -64,7 +73,6 @@ object UiUtils {
             "Shopping" -> Color(0xFF7A8A5E).copy(alpha = 0.18f)
             "Health" -> Color(0xFF7A8A5E).copy(alpha = 0.3f)
             "Rent" -> Color(0xFF645C50).copy(alpha = 0.26f)
-            "Salary" -> Color(0xFF7A8A5E).copy(alpha = 0.28f)
             else -> Color(0xFF645C50).copy(alpha = 0.16f)
         }
     }

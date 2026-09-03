@@ -10,6 +10,7 @@ data class Transaction(
     val merchant: String = "",
     val amount: Double = 0.0,
     val category: String = "Shopping",
+    val categoryId: String? = null,
     val accountId: String = "",
     val timestamp: Long = System.currentTimeMillis(),
     val source: String = "sms", // "sms" or "manual"

@@ -4,6 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import android.util.Log
 import com.example.expensetracker.data.Account
+import com.example.expensetracker.data.Category
+import com.example.expensetracker.data.CategoryRepository
+import com.example.expensetracker.data.CategoryType
 import com.example.expensetracker.data.Transaction
 import com.example.expensetracker.data.TransactionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,11 +23,13 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.YearMonth
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val repository: TransactionRepository
+    private val repository: TransactionRepository,
+    private val categoryRepository: CategoryRepository
 ) : ViewModel() {
     private val TAG = "MainViewModel"
 
@@ -64,6 +69,13 @@ class MainViewModel @Inject constructor(
             initialValue = emptyList()
         )
 
+    val categories: Flow<List<Category>> = categoryRepository.allCategories
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = emptyList()
+        )
+
     init {
         loadInitialData()
     }
@@ -73,6 +85,7 @@ class MainViewModel @Inject constructor(
     private fun loadInitialData() {
         viewModelScope.launch {
             try {
+                categoryRepository.initializeDefaultCategories()
                 _uiState.value = UiState.Success(
                     transactions = emptyList(),
                     accounts = emptyList()
@@ -107,6 +120,10 @@ class MainViewModel @Inject constructor(
         val query = _searchQuery.value.trim().lowercase()
         val accountId = _selectedAccountId.value
 
+
+        Log.d("tanmay", "gupdated account id value: $accountId")
+        if (accountId == null) Log.d(TAG, "getFilteredTransactions: accoutnid is culnull")
+
         return transactions.filter { txn ->
             val txnDate = LocalDateTime.ofInstant(
                 Instant.ofEpochMilli(txn.timestamp),
@@ -136,6 +153,38 @@ class MainViewModel @Inject constructor(
             expense = expense,
             net = income - expense
         )
+    }
+
+    fun updateTransactionCategory(transactionId: String, newCategory: String) {
+        viewModelScope.launch {
+            try {
+                val transaction = repository.getTransactionById(transactionId)
+                if (transaction != null) {
+                    val updatedTransaction = transaction.copy(category = newCategory)
+                    repository.updateTransaction(updatedTransaction)
+                    Log.d(TAG, "✅ Updated transaction category to: $newCategory")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "❌ Error updating transaction category", e)
+            }
+        }
+    }
+
+    fun addCustomCategory(categoryName: String) {
+        viewModelScope.launch {
+            try {
+                val newCategory = Category(
+                    id = UUID.randomUUID().toString(),
+                    name = categoryName,
+                    type = CategoryType.EXPENSE,
+                    isCustom = true
+                )
+                categoryRepository.addCategory(newCategory)
+                Log.d(TAG, "✅ Added custom category: $categoryName")
+            } catch (e: Exception) {
+                Log.e(TAG, "❌ Error adding custom category", e)
+            }
+        }
     }
 
     sealed class UiState {

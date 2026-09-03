@@ -162,6 +162,7 @@ private fun NavGraph_Internal(
                 TransactionDetailScreen(
                     transaction = transaction!!,
                     account = account!!,
+                    viewModel = viewModel,
                     onBack = {
                         navController.popBackStack()
                     }

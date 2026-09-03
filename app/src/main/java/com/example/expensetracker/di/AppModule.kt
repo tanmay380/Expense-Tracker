@@ -3,6 +3,7 @@ package com.example.expensetracker.di
 import android.content.Context
 import androidx.room.Room
 import com.example.expensetracker.data.AppDatabase
+import com.example.expensetracker.data.CategoryRepository
 import com.example.expensetracker.data.TransactionRepository
 import dagger.Module
 import dagger.Provides
@@ -37,5 +38,13 @@ object AppModule {
             database.transactionDao(),
             database.accountDao()
         )
+    }
+
+    @Singleton
+    @Provides
+    fun provideCategoryRepository(
+        database: AppDatabase
+    ): CategoryRepository {
+        return CategoryRepository(database.categoryDao())
     }
 }

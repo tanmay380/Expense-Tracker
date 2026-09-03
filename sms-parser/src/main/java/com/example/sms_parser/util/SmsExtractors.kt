@@ -100,16 +100,13 @@ object SmsExtractors {
     fun classifyMerchant(merchant: String): String {
         val text = merchant.lowercase()
         return when {
-            text.contains(Regex("(blinkit|zepto|instamart|grocery|walmart|bigbasket|amazon fresh|d.mart)")) -> "Groceries"
-            text.contains(Regex("(swiggy|zomato|uber eats|food|restaurant|cafe|coffee|burger|pizza)")) -> "Eating out"
-            text.contains(Regex("(uber|ola|metro|rail|bus|flight|taxi|travel|petrol|fuel|hotel|airbnb)")) -> "Travel"
-            text.contains(Regex("(airtel|jio|vodafone|electricity|water|gas|internet|phone|bill|bsnl)")) -> "Bills"
-            text.contains(Regex("(amazon|flipkart|ebay|myntra|shopping|mall|store)")) -> "Shopping"
-            text.contains(Regex("(apollo|medical|doctor|hospital|pharmacy|health|fitness|gym)")) -> "Health"
-            text.contains(Regex("(rent|landlord|lease)")) -> "Rent"
-            text.contains(Regex("(salary|neft|credit|transfer|received)")) -> "Salary"
-            text.contains(Regex("(googleplay|app store|netflix|spotify|youtube|subscription)")) -> "Entertainment"
-            else -> "Shopping"
+            text.contains(Regex("(fuel|petrol|diesel|gas station|pump)")) -> "Fuel"
+            text.contains(Regex("(upi|paytm|phonepe|google pay|gpay|bhim)")) -> "UPI"
+            text.contains(Regex("(credit card|credit|bill payment|cc bill)")) -> "Credit Card Bill"
+            text.contains(Regex("(salary|neft|credit|transfer|received|income)")) -> "Salary"
+            text.contains(Regex("(cashback|refund|reward)")) -> "Cashback"
+            text.contains(Regex("(amazon|flipkart|ebay|myntra|shopping|mall|store|groceries|blinkit|zepto)")) -> "Personal"
+            else -> "Personal"
         }
     }
 

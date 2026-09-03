@@ -1,6 +1,5 @@
 package com.example.expensetracker.ui.screens
 
-import android.graphics.drawable.shapes.OvalShape
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -19,7 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -38,7 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.expensetracker.data.Account
@@ -48,7 +44,7 @@ import com.example.expensetracker.ui.MainViewModel
 import com.example.expensetracker.ui.MonthlyStats
 import com.example.expensetracker.ui.UiUtils
 import java.time.YearMonth
-import java.time.format.DateTimeFormatter
+import kotlin.collections.emptyList
 
 @Composable
 fun HomeScreen(
@@ -67,6 +63,7 @@ fun HomeScreen(
     val accounts by viewModel.accounts.collectAsState(initial = emptyList())
     val selectedMonth by viewModel.selectedMonth.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
+    val selectedAccount by viewModel.selectedAccountId.collectAsState()
 
     LaunchedEffect(Unit) {
         Log.d(TAG, "🚀 HomeScreen LaunchedEffect started")
@@ -87,11 +84,13 @@ fun HomeScreen(
         accounts = accounts,
         selectedMonth = selectedMonth,
         searchQuery = searchQuery,
+        selectedAccount = selectedAccount,
         filteredTransactions = filteredTransactions,
         stats = stats,
         onPreviousMonth = { viewModel.previousMonth() },
         onNextMonth = { viewModel.nextMonth() },
         onMenuClick = onMenuClick,
+        onAccountSelect = { viewModel.selectAccount(it) },
         onSearchQueryChange = { viewModel.updateSearchQuery(it) },
         onTransactionClick = onTransactionClick
     )
@@ -102,11 +101,13 @@ fun HomeScreenContent(
     accounts: List<Account>,
     selectedMonth: YearMonth,
     searchQuery: String,
+    selectedAccount: String?,
     filteredTransactions: List<Transaction>,
     stats: MonthlyStats,
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit,
     onMenuClick: () -> Unit,
+    onAccountSelect: (String?) -> Unit,
     onSearchQueryChange: (String) -> Unit,
     onTransactionClick: (Transaction) -> Unit
 ) {
@@ -149,7 +150,7 @@ fun HomeScreenContent(
             // Accounts section
             item {
                 if (accounts.isNotEmpty()) {
-                    AccountsSection(accounts = accounts)
+                    AccountsSection(accounts = accounts, selectedAccount = selectedAccount, onClick = onAccountSelect)
                 }
             }
 
@@ -179,21 +180,9 @@ fun HomeScreenContent(
             }
 
             // Transactions grouped by date
-            /*val groupedByDate = filteredTransactions.groupBy { txn ->
-                UiUtils.formatDate(txn.timestamp)
-            }.toSortedMap(compareBy<String> {
-                when (it) {
-                    "Today" -> 0
-                    "Yesterday" -> 1
-                    else -> 2
-                }
-            })*/
             val groupedByDate = filteredTransactions.groupBy { txn ->
                 UiUtils.formatDate(txn.timestamp)
             }.toMap()
-
-//            Log.d("tanmay", "HomeScreenContent: " + filteredTransactions.size + " \n " + filteredTransactions)
-            Log.d("tanmay", "HomeScreenContent: " + groupedByDate.size + " \n " + groupedByDate.keys + "   " + groupedByDate.values)
 
             groupedByDate.forEach { (date, txns) ->
                 item {
@@ -271,7 +260,7 @@ fun MonthHeader(
                 .padding(top = 12.dp)
         ) {
             Text(
-                "HEY ADITYA",
+                "HEY TANMAY",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
                 color = AppColors.TextSecondary,
@@ -471,7 +460,7 @@ fun SearchBar(query: String, onQueryChange: (String) -> Unit) {
 }
 
 @Composable
-fun AccountsSection(accounts: List<Account>) {
+fun AccountsSection(accounts: List<Account>, onClick: (String?) -> Unit, selectedAccount: String?) {
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
@@ -480,24 +469,36 @@ fun AccountsSection(accounts: List<Account>) {
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         item {
-            AccountsRow("All Accounts")
+            AccountsRow("All Accounts", isSelected = selectedAccount==null, onClick = { onClick(null) },)
         }
         items(accounts) { account ->
-            AccountsRow(account.name)
+            AccountsRow(account.name, isSelected = selectedAccount == account.id, account.id, onClick)
         }
     }
 }
 
 @Composable
-private fun AccountsRow(account: String) {
+private fun AccountsRow(
+    account: String,
+    isSelected: Boolean = true,
+    accountId: String? = null,
+    onClick: (String?) -> Unit = {}
+) {
     Box(
         modifier = Modifier
+            .background(
+                if (isSelected) {
+                    Color.Gray
+                } else
+                    Color.Transparent
+            , RoundedCornerShape(60.dp))
             .border(
                 border = BorderStroke(
                     1.dp,
                     color = Color.Black.copy(alpha = 0.2f)
                 ), RoundedCornerShape(60.dp)
             )
+            .clickable(onClick = { onClick(accountId) })
             .padding(horizontal = 16.dp, vertical = 8.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -651,6 +652,8 @@ fun HomeScreenPreview() {
         onNextMonth = {},
         onMenuClick = {},
         onSearchQueryChange = {},
-        onTransactionClick = {}
+        onTransactionClick = {},
+        onAccountSelect = {},
+        selectedAccount = "All Account"
     )
 }

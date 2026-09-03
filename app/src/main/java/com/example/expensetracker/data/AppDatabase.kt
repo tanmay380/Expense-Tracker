@@ -5,10 +5,11 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [Transaction::class, Account::class], version = 1)
+@Database(entities = [Transaction::class, Account::class, Category::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun transactionDao(): TransactionDao
     abstract fun accountDao(): AccountDao
+    abstract fun categoryDao(): CategoryDao
 
     companion object {
         @Volatile
@@ -22,6 +23,7 @@ abstract class AppDatabase : RoomDatabase() {
                     "paisa_database"
                 )
                     .enableMultiInstanceInvalidation()
+                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance

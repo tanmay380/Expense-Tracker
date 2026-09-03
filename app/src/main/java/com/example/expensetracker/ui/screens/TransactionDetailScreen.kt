@@ -14,6 +14,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,16 +27,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.expensetracker.data.Account
+import com.example.expensetracker.data.Category
 import com.example.expensetracker.data.Transaction
 import com.example.expensetracker.ui.AppColors
+import com.example.expensetracker.ui.MainViewModel
 import com.example.expensetracker.ui.UiUtils
 
 @Composable
 fun TransactionDetailScreen(
     transaction: Transaction,
     account: Account,
+    viewModel: MainViewModel? = null,
     onBack: () -> Unit
 ) {
+    var showCategoryPicker by remember { mutableStateOf(false) }
+    var currentCategory by remember { mutableStateOf(transaction.category) }
+    val categories by (viewModel?.categories?.collectAsState(initial = emptyList())
+        ?: remember { mutableStateOf(emptyList()) })
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -92,7 +105,7 @@ fun TransactionDetailScreen(
                 .padding(18.dp)
                 .padding(top = 20.dp)
         ) {
-            DetailRow("Category", transaction.category)
+            DetailRow("Category", currentCategory)
             DetailDivider()
             DetailRow("Account", account.name, isClickable = true)
             DetailDivider()
@@ -158,7 +171,7 @@ fun TransactionDetailScreen(
         ) {
             ActionButton(
                 text = "Change category",
-                onClick = { },
+                onClick = { showCategoryPicker = true },
                 modifier = Modifier.weight(1f)
             )
             ActionButton(
@@ -167,6 +180,21 @@ fun TransactionDetailScreen(
                 modifier = Modifier.weight(1f)
             )
         }
+    }
+
+    if (showCategoryPicker && viewModel != null) {
+        CategoryPickerScreen(
+            categories = categories,
+            currentCategory = currentCategory,
+            onCategorySelected = { newCategory ->
+                currentCategory = newCategory
+                viewModel.updateTransactionCategory(transaction.id, newCategory)
+            },
+            onAddCategory = { customCategory ->
+                viewModel.addCustomCategory(customCategory)
+            },
+            onDismiss = { showCategoryPicker = false }
+        )
     }
 }
 
